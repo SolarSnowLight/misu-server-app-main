@@ -1,0 +1,746 @@
+basePath: /
+definitions:
+  article.ArticleModel:
+    properties:
+      created_at:
+        type: string
+      filepath:
+        type: string
+      files:
+        items:
+          $ref: '#/definitions/article.ArticlesFilesDBModel'
+        type: array
+      tags:
+        type: string
+      text:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+      uuid:
+        type: string
+    required:
+    - created_at
+    - filepath
+    - files
+    - tags
+    - text
+    - title
+    - updated_at
+    - uuid
+    type: object
+  article.ArticleSuccessModel:
+    properties:
+      success:
+        type: boolean
+    type: object
+  article.ArticleUuidModel:
+    properties:
+      uuid:
+        type: string
+    required:
+    - uuid
+    type: object
+  article.ArticlesFilesDBModel:
+    properties:
+      filename:
+        type: string
+      filepath:
+        type: string
+      files_id:
+        type: integer
+      index:
+        type: integer
+    required:
+    - filename
+    - filepath
+    - index
+    type: object
+  article.ArticlesModel:
+    properties:
+      articles:
+        items:
+          $ref: '#/definitions/article.ArticleModel'
+        type: array
+    required:
+    - articles
+    type: object
+  handler.LogoutOutputModel:
+    properties:
+      is_logout:
+        type: boolean
+    type: object
+  handler.errorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  handler.successResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  user.GoogleOAuth2Code:
+    properties:
+      code:
+        type: string
+    required:
+    - code
+    type: object
+  user.ResetPasswordModel:
+    properties:
+      password:
+        type: string
+      token:
+        type: string
+    required:
+    - password
+    - token
+    type: object
+  user.TokenAccessModel:
+    properties:
+      access_token:
+        type: string
+    required:
+    - access_token
+    type: object
+  user.TokenRefreshModel:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  user.UserEmailModel:
+    properties:
+      email:
+        type: string
+    type: object
+  user.UserJSONBModel:
+    properties:
+      date_birth:
+        type: string
+      gender:
+        type: boolean
+      name:
+        type: string
+      nickname:
+        type: string
+      patronymic:
+        type: string
+      phone:
+        type: string
+      surname:
+        type: string
+    required:
+    - name
+    - nickname
+    - surname
+    type: object
+  user.UserLoginModel:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  user.UserProfileDataModel:
+    properties:
+      date_birth:
+        type: string
+      gender:
+        type: boolean
+      name:
+        type: string
+      nickname:
+        type: string
+      patronymic:
+        type: string
+      phone:
+        type: string
+      surname:
+        type: string
+    required:
+    - name
+    - nickname
+    - surname
+    type: object
+  user.UserRegisterModel:
+    properties:
+      data:
+        $ref: '#/definitions/user.UserJSONBModel'
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - data
+    - email
+    - password
+    type: object
+host: localhost:5000
+info:
+  contact: {}
+  title: MISU Main Server
+  version: "1.0"
+paths:
+  /auth/activate:
+    get:
+      consumes:
+      - application/json
+      description: Активация аккаунта по почте
+      operationId: activate
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: data
+          schema:
+            $ref: '#/definitions/handler.LogoutOutputModel'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Activate
+      tags:
+      - auth
+  /auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Выход из аккаунта
+      operationId: logout
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: data
+          schema:
+            $ref: '#/definitions/handler.LogoutOutputModel'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Logout
+      tags:
+      - auth
+  /auth/recovery/password:
+    post:
+      consumes:
+      - application/json
+      description: Запрос на смену пароля пользователем
+      operationId: recovery-password
+      parameters:
+      - description: credentials
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/user.UserEmailModel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: data
+          schema:
+            $ref: '#/definitions/handler.successResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Recovery password
+      tags:
+      - auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Обновление токена доступа и токена обновления
+      operationId: refresh
+      parameters:
+      - description: credentials
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/user.TokenRefreshModel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: data
+          schema:
+            $ref: '#/definitions/user.TokenAccessModel'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Refresh
+      tags:
+      - auth
+  /auth/reset/password:
+    post:
+      consumes:
+      - application/json
+      description: Изменение пароля пользователем
+      operationId: reset-password
+      parameters:
+      - description: credentials
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/user.ResetPasswordModel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: data
+          schema:
+            $ref: '#/definitions/handler.successResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Reset password
+      tags:
+      - auth
+  /auth/sign-in:
+    post:
+      consumes:
+      - application/json
+      description: Авторизация пользователя
+      operationId: login
+      parameters:
+      - description: credentials
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/user.UserLoginModel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: data
+          schema:
+            $ref: '#/definitions/user.TokenAccessModel'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: SignIn
+      tags:
+      - auth
+  /auth/sign-in/oauth2:
+    post:
+      consumes:
+      - application/json
+      description: Авторизация пользователя через Google OAuth2
+      operationId: login_oauth2
+      parameters:
+      - description: credentials
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/user.GoogleOAuth2Code'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: data
+          schema:
+            $ref: '#/definitions/user.TokenAccessModel'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: SignInOAuth2
+      tags:
+      - auth
+  /auth/sign-in/vk:
+    post:
+      consumes:
+      - application/json
+      description: Авторизация пользователя через VK
+      operationId: login_vk
+      parameters:
+      - description: credentials
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/user.UserLoginModel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: data
+          schema:
+            $ref: '#/definitions/user.TokenAccessModel'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: SignInVK
+      tags:
+      - auth
+  /auth/sign-up:
+    post:
+      consumes:
+      - application/json
+      description: Регистрация пользователя
+      operationId: create-account
+      parameters:
+      - description: account info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/user.UserRegisterModel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: data
+          schema:
+            $ref: '#/definitions/user.TokenAccessModel'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: SignUp
+      tags:
+      - auth
+  /user/article/create:
+    post:
+      consumes:
+      - application/json
+      description: Update article
+      operationId: update-article
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: data
+          schema:
+            $ref: '#/definitions/article.ArticleSuccessModel'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: UpdateArticle
+      tags:
+      - article
+  /user/article/delete:
+    post:
+      consumes:
+      - application/json
+      description: Удаление статьи
+      operationId: delete-article
+      parameters:
+      - description: credentials
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/article.ArticleUuidModel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: data
+          schema:
+            $ref: '#/definitions/article.ArticleSuccessModel'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: DeleteArticle
+      tags:
+      - article
+  /user/article/get:
+    post:
+      consumes:
+      - application/json
+      description: Get information about article
+      operationId: get-article
+      parameters:
+      - description: credentials
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/article.ArticleUuidModel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: data
+          schema:
+            $ref: '#/definitions/article.ArticleModel'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: GetArticle
+      tags:
+      - article
+  /user/article/get/all:
+    post:
+      consumes:
+      - application/json
+      description: Получение списка статей
+      operationId: get-articles
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: data
+          schema:
+            $ref: '#/definitions/article.ArticlesModel'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: GetArticles
+      tags:
+      - article
+  /user/profile/get:
+    post:
+      consumes:
+      - application/json
+      description: Get user profile
+      operationId: get-profile
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: data
+          schema:
+            $ref: '#/definitions/user.UserProfileDataModel'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: GetProfile
+      tags:
+      - profile
+  /user/profile/update:
+    post:
+      consumes:
+      - application/json
+      description: Update user profile
+      operationId: update-profile
+      parameters:
+      - description: credentials
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/user.UserProfileDataModel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: data
+          schema:
+            $ref: '#/definitions/user.UserProfileDataModel'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: UpdateProfile
+      tags:
+      - profile
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

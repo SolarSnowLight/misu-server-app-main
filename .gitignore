@@ -1,0 +1,7 @@
+.env
+schema
+public
+logs
+Makefile
+config/config.yml
+.vscode
